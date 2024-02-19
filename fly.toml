@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for go-trivia on 2024-02-19T17:02:58-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'go-trivia'
+primary_region = 'ord'
+
+[build]
+  [build.args]
+    GO_VERSION = '1.19'
+
+[env]
+  PORT = '8080'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  size = 'shared-cpu-1x'

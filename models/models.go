@@ -26,6 +26,7 @@ func GetAllQuestions() (map[int]*Question, error) {
 			SELECT questions.id, questions.text, answers.id, answers.text, answers.is_correct 
 			FROM questions 
 			JOIN answers ON answers.question_id = questions.id
+			ORDER BY answers.id
 		`,
 	)
 	if err != nil {
@@ -61,6 +62,7 @@ func GetQuestion(id int) (*Question, error) {
 			FROM questions 
 			JOIN answers ON answers.question_id = questions.id
 			WHERE questions.id = $1
+			ORDER BY answers.id
 		`, id,
 	)
 	if err != nil {

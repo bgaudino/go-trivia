@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	handlers.Templates = handlers.GetTemplates()
+
 	var err error
 	db.Pool, err = db.GetPool()
 	if err != nil {
@@ -20,5 +22,10 @@ func main() {
 
 	http.HandleFunc("/", handlers.QuestionsHandler)
 	http.HandleFunc("/api/answer/", handlers.AnswerHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

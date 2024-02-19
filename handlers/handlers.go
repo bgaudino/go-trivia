@@ -9,7 +9,15 @@ import (
 	"trivia/models"
 )
 
-var templates = template.Must(template.ParseFiles("templates/index.html", "templates/partials/_answer.html"))
+var Templates *template.Template
+
+func GetTemplates() *template.Template {
+	dir := os.Getenv("TEMPLATES_DIR")
+	if dir == "" {
+		dir = "templates/"
+	}
+	return template.Must(template.ParseFiles(dir+"index.html", dir+"partials/_answer.html"))
+}
 
 func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
 	questions, err := models.GetAllQuestions()
@@ -17,7 +25,7 @@ func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 	}
-	templates.ExecuteTemplate(w, "index.html", questions)
+	Templates.ExecuteTemplate(w, "index.html", questions)
 }
 
 type QuestionContext struct {
@@ -53,5 +61,5 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Question not found", http.StatusNotFound)
 		return
 	}
-	templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
+	Templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
 }
