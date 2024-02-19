@@ -76,5 +76,8 @@ func GetQuestion(id int) (*Question, error) {
 			question.Answer = &answer
 		}
 	}
+	if len(question.Choices) == 0 {
+		return nil, nil
+	}
 	return &question, nil
 }

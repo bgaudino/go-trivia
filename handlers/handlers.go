@@ -27,31 +27,31 @@ type QuestionContext struct {
 
 func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	question := query["question"]
-	answer := query["answer"]
-	if len(question) != 1 && len(answer) != 1 {
+	questionParam := query["question"]
+	answerParam := query["answer"]
+	if len(questionParam) == 0 || len(answerParam) == 0 {
 		http.Error(w, "Must provide question and answer", http.StatusBadRequest)
 		return
 	}
-	questionId, err := strconv.Atoi(question[0])
+	questionId, err := strconv.Atoi(questionParam[0])
 	if err != nil {
 		http.Error(w, "Invalid Question", http.StatusBadRequest)
 		return
 	}
-	answerId, err := strconv.Atoi(answer[0])
+	answerId, err := strconv.Atoi(answerParam[0])
 	if err != nil {
 		http.Error(w, "Invalid Answer", http.StatusBadRequest)
 		return
 	}
-	q, err := models.GetQuestion(questionId)
+	question, err := models.GetQuestion(questionId)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	if q == nil {
+	if question == nil {
 		http.Error(w, "Question not found", http.StatusNotFound)
 		return
 	}
-	templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: q, Answer: answerId})
+	templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
 }
