@@ -1,0 +1,23 @@
+<p>{{.Question.Text}}</p>
+{{$answer := .Question.Answer}}
+{{$guess := .Answer}}
+<ul>
+  {{range .Question.Choices}}
+  <li
+    {{if eq . $answer}} 
+    class="correct"
+    {{else if eq .Id $guess}}
+    class="incorrect"
+    {{end}}
+  >
+    {{.Text}}
+  </li>
+  {{end}}
+</ul>
+<p class="feedback">
+  {{if eq $guess $answer.Id}}
+  Correct!
+  {{else}}
+  Incorrect!
+  {{end}}
+</p>

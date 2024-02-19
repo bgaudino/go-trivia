@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia</title>
+  <script defer src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    main {
+      max-width: 720px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul > li {
+      border: 1px solid black;
+      padding: 1rem;
+    }
+    .correct {
+      background-color: green;
+      color: white;
+    }
+    .feedback {
+      font-size: large;
+      font-weight: bold;
+    }
+    .incorrect {
+      background-color: red;
+      color: white;
+    }
+    .unanswered {
+      cursor: pointer;
+    }
+    .unanswered:hover {
+      background-color: lightgray;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Trivia</h1>
+    <ol>
+      {{range $id, $q := .}}
+        <li id="question-{{$id}}">
+          <p>{{$q.Text}}</p>
+          <ul>
+            {{range .Choices}}
+            <li
+              class="unanswered"
+              hx-get="/api/answer/?question={{$id}}&answer={{.Id}}"  
+              hx-target="#question-{{$id}}"
+              hx-swap="innerHTML"
+              hx-trigger="click"
+            >
+              {{.Text}}
+            </li>
+            {{end}}
+          </ul>
+        </li>
+      {{end}}
+    </ol>
+  </main>
+</body>
+</html>
