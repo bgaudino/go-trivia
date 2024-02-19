@@ -18,8 +18,8 @@ type Question struct {
 	Answer  *Answer
 }
 
-func GetAllQuestions() (map[int]Question, error) {
-	questions := map[int]Question{}
+func GetAllQuestions() (map[int]*Question, error) {
+	questions := map[int]*Question{}
 	row, err := db.Pool.Query(
 		context.Background(),
 		`
@@ -38,9 +38,8 @@ func GetAllQuestions() (map[int]Question, error) {
 		row.Scan(&id, &question, &answer.Id, &answer.Text, &answer.IsCorrect)
 		if q, ok := questions[id]; ok {
 			q.Choices = append(q.Choices, &answer)
-			questions[id] = q
 		} else {
-			questions[id] = Question{
+			questions[id] = &Question{
 				Text:    question,
 				Choices: []*Answer{&answer},
 			}
@@ -48,7 +47,6 @@ func GetAllQuestions() (map[int]Question, error) {
 		if answer.IsCorrect {
 			q := questions[id]
 			q.Answer = &answer
-			questions[id] = q
 		}
 	}
 	return questions, nil

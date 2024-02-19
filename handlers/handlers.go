@@ -17,7 +17,7 @@ func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 	}
-	templates.ExecuteTemplate(w, "index.html", &questions)
+	templates.ExecuteTemplate(w, "index.html", questions)
 }
 
 type QuestionContext struct {
