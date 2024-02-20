@@ -16,7 +16,9 @@ func GetTemplates() *template.Template {
 	if dir == "" {
 		dir = "templates/"
 	}
-	return template.Must(template.ParseFiles(dir+"index.html", dir+"partials/_answer.html"))
+	t := template.Must(template.ParseGlob(dir + "*.html"))
+	template.Must(t.ParseGlob(dir + "partials/*.html"))
+	return t
 }
 
 func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
