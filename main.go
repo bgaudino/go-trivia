@@ -22,6 +22,7 @@ func main() {
 
 	http.HandleFunc("/", handlers.QuestionsHandler)
 	http.HandleFunc("/api/answer/", handlers.AnswerHandler)
+	http.HandleFunc("/admin/questions/add/", handlers.QuestionFormHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

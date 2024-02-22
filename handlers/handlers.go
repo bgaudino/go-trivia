@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"trivia/forms"
 	"trivia/models"
 )
 
@@ -64,4 +65,18 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	Templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
+}
+
+func QuestionFormHandler(w http.ResponseWriter, r *http.Request) {
+	form := forms.NewQuestionForm(r, nil)
+	if r.Method == "POST" {
+		form.Process()
+		if len(form.Errors) > 0 {
+			Templates.ExecuteTemplate(w, "question_form.html", form)
+		} else {
+			http.Redirect(w, r, "/", http.StatusPermanentRedirect)
+		}
+	} else {
+		Templates.ExecuteTemplate(w, "question_form.html", form)
+	}
 }

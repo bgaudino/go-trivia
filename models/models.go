@@ -18,6 +18,20 @@ type Question struct {
 	Answer  *Answer
 }
 
+func (q *Question) Save() error {
+	err := db.Pool.QueryRow(context.Background(), "INSERT INTO questions (text) VALUES ($1) RETURNING id", q.Text).Scan(&q.Id)
+	if err != nil {
+		return err
+	}
+	for _, c := range q.Choices {
+		err = db.Pool.QueryRow(context.Background(), "INSERT INTO answers (text, question_id, is_correct) VALUES ($1, $2, $3) RETURNING id", c.Text, q.Id, c.IsCorrect).Scan(&c.Id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func GetAllQuestions() (map[int]*Question, error) {
 	questions := map[int]*Question{}
 	row, err := db.Pool.Query(
