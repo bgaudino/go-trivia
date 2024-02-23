@@ -3,7 +3,9 @@ package models
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
+	"time"
 	"trivia/db"
 
 	"golang.org/x/crypto/bcrypt"
@@ -34,4 +36,67 @@ func (u User) CheckPassword(password string) bool {
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
+}
+
+type Session struct {
+	Id     int
+	Token  string
+	User   *User
+	Expiry time.Time
+}
+
+func (s *Session) IsExpired() bool {
+	return s.Expiry.Before(time.Now().UTC())
+}
+
+func GetSession(r *http.Request) *Session {
+	c, err := r.Cookie("session_token")
+	if err != nil {
+		return nil
+	}
+	session := Session{
+		User: &User{},
+	}
+	row := db.Pool.QueryRow(context.Background(),
+		`
+			SELECT sessions.id, sessions.expiry, users.id, users.username
+			FROM sessions
+			JOIN users ON sessions.user_id = users.id
+			WHERE sessions.token = $1
+		`,
+		c.Value,
+	)
+	err = row.Scan(&session.Id, &session.Expiry, &session.User.Id, &session.User.Username)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	if session.IsExpired() {
+		fmt.Println("DELETETING")
+		session.Delete()
+		return nil
+	}
+	return &session
+}
+
+func (s *Session) Save() error {
+	row := db.Pool.QueryRow(
+		context.Background(),
+		"INSERT INTO sessions (token, expiry, user_id) VALUES ($1, $2, $3) RETURNING id",
+		s.Token, s.Expiry, s.User.Id,
+	)
+	err := row.Scan(&s.Id)
+	query, err2 := db.Pool.Query(context.Background(), "SELECT * FROM sessions")
+	if err2 != nil {
+		fmt.Println(err.Error())
+	} else {
+		for query.Next() {
+			fmt.Println(query.Values())
+		}
+	}
+	return err
+}
+
+func (s *Session) Delete() {
+	db.Pool.Exec(context.Background(), "DELETE FROM sessions WHERE id = $1", s.Id)
 }
