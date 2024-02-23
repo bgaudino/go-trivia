@@ -17,7 +17,12 @@ func GetTemplates() *template.Template {
 	if dir == "" {
 		dir = "templates/"
 	}
-	t := template.Must(template.ParseGlob(dir + "*.html"))
+	t := template.New("main.tpl").Funcs(template.FuncMap{
+		"inc": func(i int) int {
+			return i + 1
+		},
+	})
+	template.Must(t.ParseGlob(dir + "*.html"))
 	template.Must(t.ParseGlob(dir + "partials/*.html"))
 	return t
 }

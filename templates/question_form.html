@@ -42,7 +42,7 @@
     {{end}}
     {{range $i, $c := .Model.Choices}}
       <div>
-        <label for="choice-{{$i}}">Choice {{$i}}</label>
+        <label for="choice-{{$i}}">Choice {{inc $i}}</label>
         <input id="choice-{{$i}}" type="text" name="choices" value="{{$c.Text}}">
         <label for="correct-{{$i}}">Correct</label>
         <input
