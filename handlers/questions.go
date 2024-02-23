@@ -67,7 +67,7 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 	Templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
 }
 
-func QuestionFormHandler(w http.ResponseWriter, r *http.Request) {
+func questionFormHandler(w http.ResponseWriter, r *http.Request) {
 	form := forms.NewQuestionForm(r, nil)
 	if r.Method == "POST" {
 		form.Process()
@@ -80,3 +80,5 @@ func QuestionFormHandler(w http.ResponseWriter, r *http.Request) {
 		Templates.ExecuteTemplate(w, "question_form.html", form)
 	}
 }
+
+var QuestionFormHandler = loginRequired(questionFormHandler)

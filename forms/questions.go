@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"trivia/models"
 
 	"github.com/bgaudino/godino"
@@ -33,7 +34,7 @@ func (f *QuestionForm) AddEmptyQuestions() {
 
 func (f *QuestionForm) IsValid() bool {
 	f.Request.ParseForm()
-	q := f.Request.Form.Get("question")
+	q := strings.TrimSpace(f.Request.Form.Get("question"))
 	if q == "" {
 		e := f.Errors["question"]
 		e = append(e, fmt.Errorf("this field is required"))
@@ -51,6 +52,7 @@ func (f *QuestionForm) IsValid() bool {
 	correctCount := 0
 	ch := []*models.Answer{}
 	for idx, c := range f.Request.Form["choices"] {
+		c = strings.TrimSpace(c)
 		if c != "" {
 			choice := &models.Answer{Text: c}
 			if correctIndexes.Has(idx) {

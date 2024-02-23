@@ -8,6 +8,11 @@
 </head>
 
 <body>
+  <header>
+    <nav>
+      <a href="/admin/logout">Log out</a>
+    </nav>
+  </header>
   <h1>Add a Question</h1>
   <form method="POST">
     {{if .Errors._nonFieldErrors}}
@@ -19,7 +24,7 @@
     {{end}}
     <div>
       <label for="question">Question</label>
-      <input id="question" type="text" name="question" value="{{.Model.Text}}">
+      <input id="question" type="text" name="question" value="{{.Model.Text}}" required>
       {{if .Errors.question}}
       <ul>
         {{range .Errors.question}}
