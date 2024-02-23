@@ -6,6 +6,8 @@ import (
 	"time"
 	"trivia/forms"
 	"trivia/models"
+
+	"github.com/google/uuid"
 )
 
 type session struct {
@@ -65,13 +67,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			expiry := time.Now().Add(120 * time.Second)
-			sessions["token"] = session{
+			id := uuid.New()
+			token := id.String()
+			sessions[token] = session{
 				username: user.Username,
 				expiry:   time.Now().Add(120 * time.Second),
 			}
 			http.SetCookie(w, &http.Cookie{
 				Name:    "session_token",
-				Value:   "token",
+				Value:   token,
 				Expires: expiry,
 				Path:    "/",
 			})
