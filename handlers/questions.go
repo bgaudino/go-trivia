@@ -30,7 +30,7 @@ func GetTemplates() *template.Template {
 func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
 	questions, err := models.GetAllQuestions()
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 	}
 	Templates.ExecuteTemplate(w, "index.html", questions)
@@ -61,7 +61,7 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	question, err := models.GetQuestion(questionId)
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}

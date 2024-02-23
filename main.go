@@ -15,7 +15,7 @@ func main() {
 	var err error
 	db.Pool, err = db.GetPool()
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		log.Fatal("Unable to connect to database")
 	}
 	defer db.Pool.Close()

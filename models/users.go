@@ -22,7 +22,7 @@ func GetUser(username string) (*User, error) {
 	row := db.Pool.QueryRow(context.Background(), "SELECT id, username, password FROM users WHERE username = $1", username)
 	err := row.Scan(&user.Id, &user.Username, &user.Password)
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		return nil, err
 	}
 	return &user, nil
@@ -68,11 +68,9 @@ func GetSession(r *http.Request) *Session {
 	)
 	err = row.Scan(&session.Id, &session.Expiry, &session.User.Id, &session.User.Username)
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 	if session.IsExpired() {
-		fmt.Println("DELETETING")
 		session.Delete()
 		return nil
 	}
@@ -85,16 +83,7 @@ func (s *Session) Save() error {
 		"INSERT INTO sessions (token, expiry, user_id) VALUES ($1, $2, $3) RETURNING id",
 		s.Token, s.Expiry, s.User.Id,
 	)
-	err := row.Scan(&s.Id)
-	query, err2 := db.Pool.Query(context.Background(), "SELECT * FROM sessions")
-	if err2 != nil {
-		fmt.Println(err.Error())
-	} else {
-		for query.Next() {
-			fmt.Println(query.Values())
-		}
-	}
-	return err
+	return row.Scan(&s.Id)
 }
 
 func (s *Session) Delete() {
