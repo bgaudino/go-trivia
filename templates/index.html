@@ -42,11 +42,15 @@
     .unanswered:hover {
       background-color: lightgray;
     }
+    #score {
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <main>
     <h1>Trivia</h1>
+    <p id="score"><span id="correctCount">0</span> out of <span id="count">0</span></p>
     <ol>
       {{range $id, $q := .}}
         <li id="question-{{$id}}">
@@ -68,5 +72,21 @@
       {{end}}
     </ol>
   </main>
+  <script>
+    let count = 0;
+    let currectCount = 0;
+    function incrementCorrect() {
+      count++;
+      currectCount++;
+      document.getElementById("count").textContent = currectCount;
+      document.getElementById("correctCount").textContent = count;
+    }
+    function incrementIncorrect() {
+      currectCount++
+      document.getElementById("count").textContent = currectCount;
+    }
+    document.body.addEventListener("correct", incrementCorrect);
+    document.body.addEventListener("incorrect", incrementIncorrect);
+  </script>
 </body>
 </html>

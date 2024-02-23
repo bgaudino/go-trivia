@@ -69,6 +69,11 @@ func AnswerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Question not found", http.StatusNotFound)
 		return
 	}
+	if question.Answer.Id == answerId {
+		w.Header().Set("HX-Trigger-After-Swap", "correct")
+	} else {
+		w.Header().Set("HX-Trigger-After-Swap", "incorrect")
+	}
 	Templates.ExecuteTemplate(w, "_answer.html", QuestionContext{Question: question, Answer: answerId})
 }
 
