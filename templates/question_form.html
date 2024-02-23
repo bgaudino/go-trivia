@@ -8,11 +8,7 @@
 </head>
 
 <body>
-  <header>
-    <nav>
-      <a href="/admin/logout">Log out</a>
-    </nav>
-  </header>
+  {{template "_admin_nav.html"}} 
   <h1>Add a Question</h1>
   <form method="POST">
     {{if .Errors._nonFieldErrors}}

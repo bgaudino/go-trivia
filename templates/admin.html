@@ -6,14 +6,7 @@
   <title>Admin</title>
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/">View site</a></li>
-        <li><a href="/admin/questions/add/">Add a question</a></li>
-        <li><a href="/admin/logout/">Log out</a></li>
-      </ul>
-    </nav>
-  </header>
+  {{template "_admin_nav.html"}}
+  <p>Welcome, {{.Username}}</p>
 </body>
 </html>

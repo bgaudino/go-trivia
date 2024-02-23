@@ -1,9 +1,13 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+	"trivia/models"
+)
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
-	Templates.ExecuteTemplate(w, "admin.html", nil)
+	session := models.GetSession(r)
+	Templates.ExecuteTemplate(w, "admin.html", session.User)
 }
 
 var AdminHandler = loginRequired(adminHandler)
