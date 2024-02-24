@@ -1,91 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trivia</title>
-  <script defer src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+  <script defer src="https://unpkg.com/htmx.org@1.9.10"
+    integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+    crossorigin="anonymous"></script>
   <style>
     body {
       font-family: sans-serif;
     }
+
+    button {
+      background-color: white;
+      color: black;
+      border: 2px solid #008CBA;
+      padding: 12px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: auto;
+      width: 100%;
+      transition-duration: 0.4s;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #008CBA;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      border-color: gray;
+      color: gray;
+    }
+
     main {
       max-width: 720px;
       margin: auto;
     }
+
     h1 {
       text-align: center;
     }
+
+    ol {
+      padding-left: 0;
+    }
+
     ul {
       list-style: none;
       padding-left: 0;
     }
-    ul > li {
+
+    ul>li {
       border: 1px solid black;
       padding: 1rem;
     }
+
+    .btn-container {
+      display: flex;
+      justify-content: center;
+    }
+
     .correct {
       background-color: #5cb85c;
     }
+
+    .hide {
+      display: none;
+    }
+
     .feedback {
       font-size: large;
       font-weight: bold;
     }
+
     .incorrect {
       background-color: #f32013;
       color: white;
     }
+
     .unanswered {
       cursor: pointer;
     }
+
     .unanswered:hover {
       background-color: lightgray;
     }
+
     #score {
       text-align: center;
     }
   </style>
 </head>
+
 <body>
   <main>
     <h1>Trivia</h1>
-    <p id="score"><span id="correctCount">0</span> out of <span id="count">0</span></p>
+    <p id="score">Score: <span id="correctCount">0</span>/<span id="count">0</span></p>
     <ol>
-      {{range $_, $q := .Values}}
-        <li id="question-{{$q.Id}}">
-          <p>{{$q.Text}}</p>
-          <ul>
-            {{range .Choices}}
-            <li
-              class="unanswered"
-              hx-get="/api/answer/?question={{$q.Id}}&answer={{.Id}}"  
-              hx-target="#question-{{$q.Id}}"
-              hx-swap="innerHTML"
-              hx-trigger="click"
-            >
-              {{.Text}}
-            </li>
-            {{end}}
-          </ul>
-        </li>
+      {{range $i, $q := .Values}}
+      <li id="question-{{$q.Id}}" value="{{inc $i}}" {{if gt $i 0}}hidden{{end}} data-index="{{$i}}">
+        <p>{{$q.Text}}</p>
+        <ul>
+          {{range .Choices}}
+          <li class="unanswered" hx-get="/api/answer/?question={{$q.Id}}&answer={{.Id}}" hx-target="#question-{{$q.Id}}"
+            hx-swap="innerHTML" hx-trigger="click">
+            {{.Text}}
+          </li>
+          {{end}}
+        </ul>
+      </li>
       {{end}}
     </ol>
+    <div class="btn-container">
+      <button type="button" id="next" disabled>Next</button>
+    </div>
   </main>
   <script>
     let count = 0;
-    let currectCount = 0;
-    function incrementCorrect() {
+    let correctCount = 0;
+    const numQuestions = document.querySelectorAll('[data-index]').length
+    function increment(isCorrect) {
       count++;
-      currectCount++;
-      document.getElementById("count").textContent = currectCount;
-      document.getElementById("correctCount").textContent = count;
+      if (isCorrect) {
+        correctCount++
+      }
+      document.getElementById("count").textContent = count;
+      document.getElementById("correctCount").textContent = correctCount;
+      if (count < numQuestions) {
+        document.getElementById('next').disabled = false;
+      } else {
+        alert(`Game over! You got ${correctCount} of ${count} right`);
+      }
     }
-    function incrementIncorrect() {
-      currectCount++
-      document.getElementById("count").textContent = currectCount;
+    function showNextQuestion(e) {
+      const current = document.querySelector(`[data-index="${count - 1}"]`);
+      const next = document.querySelector(`[data-index="${count}"]`);
+      if (current && next) {
+        current.hidden = true;
+        next.hidden = false;
+      }
+      e.target.disabled = true;
     }
-    document.body.addEventListener("correct", incrementCorrect);
-    document.body.addEventListener("incorrect", incrementIncorrect);
+    document.getElementById('next').addEventListener('click', showNextQuestion);
+    document.body.addEventListener("correct", () => increment(true));
+    document.body.addEventListener("incorrect", () => increment(false));
   </script>
 </body>
+
 </html>
