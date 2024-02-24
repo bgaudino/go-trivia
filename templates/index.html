@@ -51,15 +51,15 @@
     <h1>Trivia</h1>
     <p id="score"><span id="correctCount">0</span> out of <span id="count">0</span></p>
     <ol>
-      {{range $id, $q := .}}
-        <li id="question-{{$id}}">
+      {{range $_, $q := .Values}}
+        <li id="question-{{$q.Id}}">
           <p>{{$q.Text}}</p>
           <ul>
             {{range .Choices}}
             <li
               class="unanswered"
-              hx-get="/api/answer/?question={{$id}}&answer={{.Id}}"  
-              hx-target="#question-{{$id}}"
+              hx-get="/api/answer/?question={{$q.Id}}&answer={{.Id}}"  
+              hx-target="#question-{{$q.Id}}"
               hx-swap="innerHTML"
               hx-trigger="click"
             >

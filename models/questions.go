@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"trivia/db"
+	"trivia/utils"
 )
 
 type Answer struct {
@@ -32,37 +33,35 @@ func (q *Question) Save() error {
 	return nil
 }
 
-func GetAllQuestions() (map[int]*Question, error) {
-	questions := map[int]*Question{}
-	row, err := db.Pool.Query(
+func GetQuestions(n int) (*utils.OrderedMap[int, *Question], error) {
+	questions := utils.NewOrderedMap[int, *Question]()
+	rows, err := db.Pool.Query(
 		context.Background(),
-		`
-			SELECT questions.id, questions.text, answers.id, answers.text, answers.is_correct 
-			FROM questions 
-			JOIN answers ON answers.question_id = questions.id
-			ORDER BY answers.id
-		`,
+		"SELECT id, text FROM questions ORDER BY RANDOM() LIMIT $1",
+		n,
 	)
 	if err != nil {
 		return nil, err
 	}
-	for row.Next() {
+	for rows.Next() {
+		var q = Question{Choices: []*Answer{}}
+		rows.Scan(&q.Id, &q.Text)
+		questions.Insert(q.Id, &q)
+	}
+	rows, err = db.Pool.Query(
+		context.Background(),
+		"SELECT id, text, is_correct, question_id FROM answers WHERE question_id = ANY($1) ORDER BY id",
+		questions.Keys(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
 		var id int
-		var question string
 		var answer Answer
-		row.Scan(&id, &question, &answer.Id, &answer.Text, &answer.IsCorrect)
-		if q, ok := questions[id]; ok {
-			q.Choices = append(q.Choices, &answer)
-		} else {
-			questions[id] = &Question{
-				Text:    question,
-				Choices: []*Answer{&answer},
-			}
-		}
-		if answer.IsCorrect {
-			q := questions[id]
-			q.Answer = &answer
-		}
+		rows.Scan(&answer.Id, &answer.Text, &answer.IsCorrect, &id)
+		q := questions.Get(id)
+		q.Choices = append(q.Choices, &answer)
 	}
 	return questions, nil
 }

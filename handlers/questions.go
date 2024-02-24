@@ -28,7 +28,7 @@ func GetTemplates() *template.Template {
 }
 
 func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
-	questions, err := models.GetAllQuestions()
+	questions, err := models.GetQuestions(10)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
