@@ -2,8 +2,12 @@ package models
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"trivia/db"
 	"trivia/utils"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type Answer struct {
@@ -20,17 +24,41 @@ type Question struct {
 }
 
 func (q *Question) Save() error {
-	err := db.Pool.QueryRow(context.Background(), "INSERT INTO questions (text) VALUES ($1) RETURNING id", q.Text).Scan(&q.Id)
+	ctx := context.Background()
+	tx, err := db.Pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
+
+	defer func() {
+		if err != nil {
+			rbErr := tx.Rollback(ctx)
+			if rbErr != nil {
+				fmt.Fprintln(os.Stderr, rbErr.Error())
+			}
+		}
+	}()
+
+	err = tx.QueryRow(
+		ctx,
+		"INSERT INTO questions (text) VALUES ($1) RETURNING id",
+		q.Text,
+	).Scan(&q.Id)
+	if err != nil {
+		return err
+	}
+
 	for _, c := range q.Choices {
-		err = db.Pool.QueryRow(context.Background(), "INSERT INTO answers (text, question_id, is_correct) VALUES ($1, $2, $3) RETURNING id", c.Text, q.Id, c.IsCorrect).Scan(&c.Id)
+		err = tx.QueryRow(
+			ctx,
+			"INSERT INTO answers (text, question_id, is_correct) VALUES ($1, $2, $3) RETURNING id",
+			c.Text, q.Id, c.IsCorrect,
+		).Scan(&c.Id)
 		if err != nil {
 			return err
 		}
 	}
-	return nil
+	return tx.Commit(ctx)
 }
 
 func GetQuestions(n int) (*utils.OrderedMap[int, *Question], error) {
