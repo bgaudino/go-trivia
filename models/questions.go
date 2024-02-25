@@ -2,12 +2,14 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"trivia/db"
 	"trivia/utils"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Answer struct {
@@ -45,6 +47,11 @@ func (q *Question) Save() error {
 		q.Text,
 	).Scan(&q.Id)
 	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.ConstraintName == "questions_text_key" {
+				return errors.New("this question already exists")
+			}
+		}
 		return err
 	}
 
@@ -55,6 +62,11 @@ func (q *Question) Save() error {
 			c.Text, q.Id, c.IsCorrect,
 		).Scan(&c.Id)
 		if err != nil {
+			if pgErr, ok := err.(*pgconn.PgError); ok {
+				if pgErr.ConstraintName == "answers_text_question_id_key" {
+					return errors.New("choices must be unique per question")
+				}
+			}
 			return err
 		}
 	}
