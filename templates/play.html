@@ -21,8 +21,14 @@
         <p>{{$q.Text}}</p>
         <ul>
           {{range .Choices}}
-          <li class="unanswered" hx-get="/api/answer/?question={{$q.Id}}&answer={{.Id}}" hx-target="#question-{{$q.Id}}"
-            hx-swap="innerHTML" hx-trigger="click">
+          <li 
+            class="unanswered"
+            hx-get="/api/answer/?question={{$q.Id}}&answer={{.Id}}"
+            hx-target="#question-{{$q.Id}}"
+            hx-swap="innerHTML"
+            hx-trigger="click"
+            tabindex="0"
+          >
             {{.Text}}
           </li>
           {{end}}
@@ -44,6 +50,11 @@
   <script>
     let count = 0;
     let correctCount = 0;
+    document.body.addEventListener('keydown', function(e) {
+      if (e.keyCode === 13) {
+        e.target.click();
+      }
+    })
     const numQuestions = document.querySelectorAll('[data-index]').length
     function increment(isCorrect) {
       count++;
