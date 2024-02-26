@@ -40,7 +40,23 @@ func PlayHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	categoryParam := query.Get("category")
 	categoryId, _ := strconv.Atoi(categoryParam)
-	questions, err := models.GetQuestions(10, &models.QuestionFilters{Category: categoryId})
+	count := 10
+	countParam := query.Get("count")
+	n, err := strconv.Atoi(countParam)
+	if err == nil && n >= 1 && n <= 20 {
+		count = n
+	}
+	var difficulty string
+	difficultyParam := query.Get("difficulty")
+	if difficultyParam == "easy" || difficultyParam == "medium" || difficultyParam == "hard" {
+		difficulty = difficultyParam
+	}
+	filters := models.QuestionFilters{
+		Count:      count,
+		Category:   categoryId,
+		Difficulty: difficulty,
+	}
+	questions, err := models.GetQuestions(&filters)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)

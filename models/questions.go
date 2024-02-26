@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"trivia/db"
 	"trivia/utils"
 
@@ -105,25 +106,37 @@ func (q *Question) Save(conn *pgxpool.Pool) error {
 }
 
 type QuestionFilters struct {
-	Category int
+	Category   int
+	Difficulty string
+	Count      int
 }
 
-func GetQuestions(n int, filters *QuestionFilters) (*utils.OrderedMap[int, *Question], error) {
+func GetQuestions(filters *QuestionFilters) (*utils.OrderedMap[int, *Question], error) {
 	questions := utils.NewOrderedMap[int, *Question]()
-	query := "SELECT id, text FROM questions ORDER BY RANDOM() LIMIT $1"
-	params := []any{n}
+	var query strings.Builder
+	params := []any{filters.Count}
+	query.WriteString("SELECT questions.id, questions.text, questions.difficulty FROM questions")
 	if filters.Category != 0 {
 		params = append(params, filters.Category)
-		query = `
-			SELECT questions.id, questions.text FROM questions
-			JOIN categorization ON questions.id = categorization.question_id 
-			WHERE categorization.category_id = $2 
-			ORDER BY RANDOM() LIMIT $1
-		`
+		query.WriteString(`
+			JOIN categorization ON questions.id = categorization.question_id
+			WHERE categorization.category_id = $2
+		`)
 	}
+	if filters.Difficulty != "" {
+		params = append(params, filters.Difficulty)
+		l := len(params)
+		if l > 2 {
+			query.WriteString(" AND ")
+		} else {
+			query.WriteString(" WHERE ")
+		}
+		query.WriteString(fmt.Sprintf("difficulty = $%v", l))
+	}
+	query.WriteString(" ORDER BY RANDOM() LIMIT $1")
 	rows, err := db.Pool.Query(
 		context.Background(),
-		query,
+		query.String(),
 		params...,
 	)
 	if err != nil {
@@ -131,7 +144,7 @@ func GetQuestions(n int, filters *QuestionFilters) (*utils.OrderedMap[int, *Ques
 	}
 	for rows.Next() {
 		var q = Question{Choices: []*Answer{}}
-		rows.Scan(&q.Id, &q.Text)
+		rows.Scan(&q.Id, &q.Text, &q.Difficulty)
 		questions.Insert(q.Id, &q)
 	}
 	rows, err = db.Pool.Query(
