@@ -19,12 +19,35 @@ type Answer struct {
 	IsCorrect bool
 }
 
+type Category struct {
+	Id   int
+	Name string
+}
+
+func GetCategories() ([]*Category, error) {
+	categories := []*Category{}
+	rows, err := db.Pool.Query(context.Background(), "SELECT id, name FROM categories ORDER BY name")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		c := Category{}
+		err := rows.Scan(&c.Id, &c.Name)
+		if err != nil {
+			return nil, err
+		}
+		categories = append(categories, &c)
+	}
+	return categories, nil
+}
+
 type Question struct {
 	Id         int
 	Text       string
 	Choices    []*Answer
 	Answer     *Answer
 	Difficulty string
+	Categories []*Category
 }
 
 func (q *Question) Save(conn *pgxpool.Pool) error {
@@ -81,12 +104,27 @@ func (q *Question) Save(conn *pgxpool.Pool) error {
 	return tx.Commit(ctx)
 }
 
-func GetQuestions(n int) (*utils.OrderedMap[int, *Question], error) {
+type QuestionFilters struct {
+	Category int
+}
+
+func GetQuestions(n int, filters *QuestionFilters) (*utils.OrderedMap[int, *Question], error) {
 	questions := utils.NewOrderedMap[int, *Question]()
+	query := "SELECT id, text FROM questions ORDER BY RANDOM() LIMIT $1"
+	params := []any{n}
+	if filters.Category != 0 {
+		params = append(params, filters.Category)
+		query = `
+			SELECT questions.id, questions.text FROM questions
+			JOIN categorization ON questions.id = categorization.question_id 
+			WHERE categorization.category_id = $2 
+			ORDER BY RANDOM() LIMIT $1
+		`
+	}
 	rows, err := db.Pool.Query(
 		context.Background(),
-		"SELECT id, text FROM questions ORDER BY RANDOM() LIMIT $1",
-		n,
+		query,
+		params...,
 	)
 	if err != nil {
 		return nil, err

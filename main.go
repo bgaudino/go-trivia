@@ -20,7 +20,8 @@ func main() {
 	}
 	defer db.Pool.Close()
 
-	http.HandleFunc("/", handlers.QuestionsHandler)
+	http.HandleFunc("/", handlers.OptionsHandler)
+	http.HandleFunc("/play/", handlers.PlayHandler)
 	http.HandleFunc("/api/answer/", handlers.AnswerHandler)
 	http.HandleFunc("/admin/", handlers.AdminHandler)
 	http.HandleFunc("/admin/questions/add/", handlers.QuestionFormHandler)

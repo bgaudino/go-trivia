@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia</title>
+  {{template "_styles.html"}}
+</head>
+<body>
+  <main>
+    <form action="/play">
+      <h1>Trivia</h1>
+      <label for="category">Category</label>
+      <select id="category" name="category">
+        <option value="">All</option>
+        {{range .}}
+        <option value="{{.Id}}">{{.Name}}</option>
+        {{end}}
+      </select>
+      <button type="submit" class="button">Play</button>
+    </form>
+  </main> 
+</body>
+</html>

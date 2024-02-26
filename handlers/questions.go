@@ -27,13 +27,25 @@ func GetTemplates() *template.Template {
 	return t
 }
 
-func QuestionsHandler(w http.ResponseWriter, r *http.Request) {
-	questions, err := models.GetQuestions(10)
+func OptionsHandler(w http.ResponseWriter, r *http.Request) {
+	categories, err := models.GetCategories()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 	}
-	Templates.ExecuteTemplate(w, "index.html", questions)
+	Templates.ExecuteTemplate(w, "options.html", categories)
+}
+
+func PlayHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	categoryParam := query.Get("category")
+	categoryId, _ := strconv.Atoi(categoryParam)
+	questions, err := models.GetQuestions(10, &models.QuestionFilters{Category: categoryId})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+	}
+	Templates.ExecuteTemplate(w, "play.html", questions)
 }
 
 type QuestionContext struct {

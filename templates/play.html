@@ -8,102 +8,7 @@
   <script defer src="https://unpkg.com/htmx.org@1.9.10"
     integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
     crossorigin="anonymous"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-    }
-
-    button, .button {
-      background-color: white;
-      color: black;
-      border: 2px solid #008CBA;
-      padding: 12px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: auto;
-      width: 100%;
-      transition-duration: 0.4s;
-      cursor: pointer;
-    }
-
-    button:hover:not(:disabled) {
-      background-color: #008CBA;
-      color: white;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      border-color: gray;
-      color: gray;
-    }
-
-    main {
-      max-width: 720px;
-      margin: auto;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    ol {
-      padding-left: 0;
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    ul>li {
-      border: 1px solid black;
-      padding: 1rem;
-    }
-
-    .btn-container {
-      display: flex;
-      justify-content: center;
-    }
-
-    .correct {
-      background-color: #5cb85c;
-    }
-
-    .hide {
-      display: none;
-    }
-
-    .feedback {
-      font-size: large;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .feedback:empty::before {
-      content:"";
-      display:inline-block;
-    }
-
-    .incorrect {
-      background-color: #f32013;
-      color: white;
-    }
-
-    .unanswered {
-      cursor: pointer;
-    }
-
-    .unanswered:hover {
-      background-color: lightgray;
-    }
-
-    #score {
-      text-align: center;
-    }
-  </style>
+  {{template "_styles.html"}}
 </head>
 
 <body>
@@ -127,10 +32,13 @@
       {{end}}
     </ol>
     <div class="btn-container">
-      <button type="button" id="next" disabled>Next</button>
+      <button type="button" class="button" id="next" disabled>Next</button>
     </div>
     <div class="btn-container">
-      <a href="/" class="button hide" id="play-again">Play again</a>
+      <button class="button hide" id="play-again">Play again</button>
+    </div>
+    <div class="btn-container">
+      <a href="/" class="button hide" id="options">Change Options</a>
     </div>
   </main>
   <script>
@@ -149,6 +57,7 @@
       } else {
         document.getElementById('next').classList.add('hide');
         document.getElementById('play-again').classList.remove('hide');
+        document.getElementById('options').classList.remove('hide');
       }
     }
     function showNextQuestion(e) {
@@ -163,6 +72,7 @@
     document.getElementById('next').addEventListener('click', showNextQuestion);
     document.body.addEventListener("correct", () => increment(true));
     document.body.addEventListener("incorrect", () => increment(false));
+    document.getElementById('play-again').addEventListener('click', () => window.location.reload());
   </script>
 </body>
 
