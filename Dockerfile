@@ -6,11 +6,13 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY . .
 RUN go build -v -o /run-app .
+RUN go build -v -o /get-data ./cmd/data
 
 
 FROM alpine:latest
 
 COPY --from=builder /run-app /usr/local/bin/
+COPY --from=builder /get-data /usr/local/bin/
 COPY --from=builder /usr/src/app/templates /templates
 
 # Set the working directory

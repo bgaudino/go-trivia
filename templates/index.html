@@ -13,7 +13,7 @@
       font-family: sans-serif;
     }
 
-    button {
+    button, .button {
       background-color: white;
       color: black;
       border: 2px solid #008CBA;
@@ -79,6 +79,12 @@
     .feedback {
       font-size: large;
       font-weight: bold;
+      text-align: center;
+    }
+
+    .feedback:empty::before {
+      content:"";
+      display:inline-block;
     }
 
     .incorrect {
@@ -116,11 +122,15 @@
           </li>
           {{end}}
         </ul>
+        <p class="feedback"></p>
       </li>
       {{end}}
     </ol>
     <div class="btn-container">
       <button type="button" id="next" disabled>Next</button>
+    </div>
+    <div class="btn-container">
+      <a href="/" class="button hide" id="play-again">Play again</a>
     </div>
   </main>
   <script>
@@ -137,7 +147,8 @@
       if (count < numQuestions) {
         document.getElementById('next').disabled = false;
       } else {
-        alert(`Game over! You got ${correctCount} of ${count} right`);
+        document.getElementById('next').classList.add('hide');
+        document.getElementById('play-again').classList.remove('hide');
       }
     }
     function showNextQuestion(e) {

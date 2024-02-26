@@ -80,7 +80,7 @@ func (f *QuestionForm) IsValid() bool {
 }
 
 func (f *QuestionForm) Save() error {
-	return f.Model.Save()
+	return f.Model.Save(nil)
 }
 
 func (f *QuestionForm) Process() {

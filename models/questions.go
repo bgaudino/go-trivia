@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Answer struct {
@@ -19,15 +20,19 @@ type Answer struct {
 }
 
 type Question struct {
-	Id      int
-	Text    string
-	Choices []*Answer
-	Answer  *Answer
+	Id         int
+	Text       string
+	Choices    []*Answer
+	Answer     *Answer
+	Difficulty string
 }
 
-func (q *Question) Save() error {
+func (q *Question) Save(conn *pgxpool.Pool) error {
+	if conn == nil {
+		conn = db.Pool
+	}
 	ctx := context.Background()
-	tx, err := db.Pool.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -41,10 +46,13 @@ func (q *Question) Save() error {
 		}
 	}()
 
+	if q.Difficulty == "" {
+		q.Difficulty = "medium"
+	}
 	err = tx.QueryRow(
 		ctx,
-		"INSERT INTO questions (text) VALUES ($1) RETURNING id",
-		q.Text,
+		"INSERT INTO questions (text, difficulty) VALUES ($1, $2) RETURNING id",
+		q.Text, q.Difficulty,
 	).Scan(&q.Id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
