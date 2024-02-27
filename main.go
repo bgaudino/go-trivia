@@ -15,7 +15,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Could not load .env file")
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
 	handlers.Templates = handlers.GetTemplates()
