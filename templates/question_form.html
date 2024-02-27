@@ -31,6 +31,36 @@
         </ul>
         {{end}}
       </div>
+      <div>
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          {{range .Categories}}
+          <option value="{{.Id}}">{{.Name}}</option>
+          {{end}}
+        </select>
+      </div>
+      {{if .Errors.category}}
+      <ul>
+        {{range .Errors.category}}
+        <li>{{.}}</li>
+        {{end}}
+      </ul>
+      {{end}}
+      <div>
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" name="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      {{if .Errors.difficulty}}
+      <ul>
+        {{range .Errors.difficulty}}
+        <li>{{.}}</li>
+        {{end}}
+      </ul>
+      {{end}}
       {{if .Errors.choices}}
       <ul>
         {{range .Errors.choices}}

@@ -87,6 +87,17 @@ func (q *Question) Save(conn *pgxpool.Pool) error {
 		return err
 	}
 
+	for _, c := range q.Categories {
+		_, err = tx.Exec(
+			ctx,
+			"INSERT INTO categorization (question_id, category_id) VALUES ($1, $2)",
+			q.Id, c.Id,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, c := range q.Choices {
 		err = tx.QueryRow(
 			ctx,
