@@ -7,12 +7,20 @@ import (
 	"os"
 	"trivia/db"
 	"trivia/handlers"
+
+	"github.com/gorilla/csrf"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	handlers.Templates = handlers.GetTemplates()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Could not load .env file")
+	}
 
-	var err error
+	handlers.Templates = handlers.GetTemplates()
+	r := http.NewServeMux()
+
 	db.Pool, err = db.GetPool()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -20,17 +28,18 @@ func main() {
 	}
 	defer db.Pool.Close()
 
-	http.HandleFunc("/", handlers.OptionsHandler)
-	http.HandleFunc("/play/", handlers.PlayHandler)
-	http.HandleFunc("/api/answer/", handlers.AnswerHandler)
-	http.HandleFunc("/admin/", handlers.AdminHandler)
-	http.HandleFunc("/admin/questions/add/", handlers.QuestionFormHandler)
-	http.HandleFunc("/admin/login/", handlers.Login)
-	http.HandleFunc("/admin/logout/", handlers.Logout)
+	r.HandleFunc("/", handlers.OptionsHandler)
+	r.HandleFunc("/play/", handlers.PlayHandler)
+	r.HandleFunc("/api/answer/", handlers.AnswerHandler)
+	r.HandleFunc("/admin/", handlers.AdminHandler)
+	r.HandleFunc("/admin/questions/add/", handlers.QuestionFormHandler)
+	r.HandleFunc("/admin/login/", handlers.Login)
+	r.HandleFunc("/admin/logout/", handlers.Logout)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	key := []byte(os.Getenv("SECRET_KEY"))
+	log.Fatal(http.ListenAndServe(":"+port, csrf.Protect(key)(r)))
 }

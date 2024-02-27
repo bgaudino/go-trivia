@@ -2,12 +2,14 @@ package forms
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
 	"trivia/models"
 
 	"github.com/bgaudino/godino"
+	"github.com/gorilla/csrf"
 )
 
 type QuestionForm struct {
@@ -15,6 +17,7 @@ type QuestionForm struct {
 	Errors     map[string][]error
 	Model      *models.Question
 	Categories []*models.Category
+	CsrfField  template.HTML
 }
 
 func NewQuestionForm(r *http.Request, m *models.Question) QuestionForm {
@@ -28,6 +31,7 @@ func NewQuestionForm(r *http.Request, m *models.Question) QuestionForm {
 	if err == nil {
 		f.Categories = categories
 	}
+	f.CsrfField = csrf.TemplateField(r)
 	return f
 }
 

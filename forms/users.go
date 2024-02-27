@@ -2,15 +2,19 @@ package forms
 
 import (
 	"errors"
+	"html/template"
 	"net/http"
 	"strings"
 	"trivia/models"
+
+	"github.com/gorilla/csrf"
 )
 
 type UserForm struct {
-	Request *http.Request
-	Errors  map[string][]error
-	Model   *models.User
+	Request   *http.Request
+	Errors    map[string][]error
+	Model     *models.User
+	CsrfField template.HTML
 }
 
 func NewUserForm(r *http.Request, m *models.User) UserForm {
@@ -18,6 +22,7 @@ func NewUserForm(r *http.Request, m *models.User) UserForm {
 	if f.Model == nil {
 		f.Model = &models.User{}
 	}
+	f.CsrfField = csrf.TemplateField(r)
 	return f
 }
 

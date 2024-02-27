@@ -13,6 +13,7 @@
     {{template "_admin_nav.html"}} 
     <h1>Add a Question</h1>
     <form method="POST">
+      {{.CsrfField}}
       {{if .Errors._nonFieldErrors}}
       <ul>
         {{range .Errors._nonFieldErrors}}
