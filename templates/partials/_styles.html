@@ -8,13 +8,15 @@
     --success: #2ecc71;
     --danger: #e74c3c;
   }
+
   body {
-    font-family: sans-serif;
+    font-family: monospace;
     color: var(--white);
     background-color: var(--black);
   }
 
   .button {
+    font-family: monospace;
     background-color: var(--primary);
     color: var(--black);
     border: 2px solid var(--primary-dark);
@@ -43,6 +45,7 @@
   }
 
   select {
+    font-family: monospace;
     padding: 12px;
     font-size: 16px;
     width: 100%;
@@ -51,8 +54,9 @@
     -webkit-appearance: none;
     -moz-appearance: none;
   }
-  
+
   input[type="number"] {
+    font-family: monospace;
     font-size: 16px;
     margin-bottom: 1rem;
     padding: 12px;
@@ -69,6 +73,7 @@
   main {
     max-width: 720px;
     margin: auto;
+    padding-top: 20px;
   }
 
   h1 {
@@ -85,7 +90,6 @@
   }
 
   ul>li {
-    border: 1px solid var(--black);
     padding: 1rem;
   }
 
@@ -124,6 +128,7 @@
   }
 
   .unanswered:hover {
+    border: 1px solid var(--white);
     background-color: var(--primary-dark);
   }
 
