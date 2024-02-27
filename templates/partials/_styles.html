@@ -7,6 +7,8 @@
     --disabled: #505050;
     --success: #2ecc71;
     --danger: #e74c3c;
+    --secondary: #8e44ad;        /* Secondary color */
+    --secondary-dark: #6c3483;
   }
 
   body {
@@ -29,6 +31,7 @@
     width: 100%;
     transition-duration: 0.4s;
     cursor: pointer;
+    margin-bottom: 1rem;
   }
 
   .button:hover:not(:disabled) {
@@ -42,6 +45,17 @@
     border-color: var(--disabled);
     color: var(--black);
     background-color: var(--disabled);
+  }
+
+  .secondary {
+    color: var(--white);
+    border: 2px solid var(--secondary-dark);
+    background-color: var(--secondary);
+  }
+
+  .secondary:hover {
+    color: var(--white);
+    background-color: var(--secondary-dark) !important;
   }
 
   select {
