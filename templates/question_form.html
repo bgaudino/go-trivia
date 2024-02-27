@@ -5,55 +5,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add a Question</title>
+  {{template "_styles.html"}}
 </head>
 
 <body>
-  {{template "_admin_nav.html"}} 
-  <h1>Add a Question</h1>
-  <form method="POST">
-    {{if .Errors._nonFieldErrors}}
-    <ul>
-      {{range .Errors._nonFieldErrors}}
-      <li>{{.}}</li>
-      {{end}}
-    </ul>
-    {{end}}
-    <div>
-      <label for="question">Question</label>
-      <input id="question" type="text" name="question" value="{{.Model.Text}}" required>
-      {{if .Errors.question}}
+  <main>
+    {{template "_admin_nav.html"}} 
+    <h1>Add a Question</h1>
+    <form method="POST">
+      {{if .Errors._nonFieldErrors}}
       <ul>
-        {{range .Errors.question}}
+        {{range .Errors._nonFieldErrors}}
         <li>{{.}}</li>
         {{end}}
       </ul>
       {{end}}
-    </div>
-    {{if .Errors.choices}}
-    <ul>
-      {{range .Errors.choices}}
-      <li>{{.}}</li>
-      {{end}}
-    </ul>
-    {{end}}
-    {{range $i, $c := .Model.Choices}}
       <div>
-        <label for="choice-{{$i}}">Choice {{inc $i}}</label>
-        <input id="choice-{{$i}}" type="text" name="choices" value="{{$c.Text}}">
-        <label for="correct-{{$i}}">Correct</label>
-        <input
-          id="correct-{{$i}}"
-          type="checkbox"
-          name="correct"
-          value="{{$i}}"
-          {{if $c.IsCorrect}}
-          checked
+        <label for="question">Question</label>
+        <input id="question" type="text" name="question" value="{{.Model.Text}}" required>
+        {{if .Errors.question}}
+        <ul>
+          {{range .Errors.question}}
+          <li>{{.}}</li>
           {{end}}
-        >
+        </ul>
+        {{end}}
       </div>
-    {{end}}
-    <button type="submit">Add</button>
-  </form>
+      {{if .Errors.choices}}
+      <ul>
+        {{range .Errors.choices}}
+        <li>{{.}}</li>
+        {{end}}
+      </ul>
+      {{end}}
+      {{range $i, $c := .Model.Choices}}
+        <div>
+          <label for="choice-{{$i}}">Choice {{inc $i}}</label>
+          <input id="choice-{{$i}}" type="text" name="choices" value="{{$c.Text}}">
+          <label for="correct-{{$i}}">Correct</label>
+          <input
+            id="correct-{{$i}}"
+            type="checkbox"
+            name="correct"
+            value="{{$i}}"
+            {{if $c.IsCorrect}}
+            checked
+            {{end}}
+          >
+        </div>
+      {{end}}
+      <button type="submit" class="button">Add</button>
+    </form>
+  </main>
 </body>
 
 </html>

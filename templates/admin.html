@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin</title>
+  {{template "_styles.html"}}
 </head>
 <body>
-  {{template "_admin_nav.html"}}
-  <p>Welcome, {{.Username}}</p>
+  <main>
+    {{template "_admin_nav.html"}}
+    <p>Welcome, {{.Username}}</p>
+  </main>
 </body>
 </html>

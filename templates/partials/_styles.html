@@ -7,8 +7,12 @@
     --disabled: #505050;
     --success: #2ecc71;
     --danger: #e74c3c;
-    --secondary: #8e44ad;        /* Secondary color */
+    --secondary: #8e44ad;
     --secondary-dark: #6c3483;
+  }
+
+  a {
+    color: var(--white);
   }
 
   body {
@@ -58,7 +62,9 @@
     background-color: var(--secondary-dark) !important;
   }
 
-  select {
+  select,
+  input[type="text"],
+  input[type="password"] {
     font-family: monospace;
     padding: 12px;
     font-size: 16px;
@@ -75,6 +81,10 @@
     margin-bottom: 1rem;
     padding: 12px;
     width: calc(100% - 27px);
+  }
+
+  input[type="checkbox"] {
+    margin-bottom: 1rem;
   }
 
   label {
