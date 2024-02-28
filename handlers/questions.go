@@ -13,10 +13,7 @@ import (
 var Templates *template.Template
 
 func GetTemplates() *template.Template {
-	dir := os.Getenv("TEMPLATES_DIR")
-	if dir == "" {
-		dir = "templates/"
-	}
+	dir := "templates/"
 	t := template.New("main.tpl").Funcs(template.FuncMap{
 		"inc": func(i int) int {
 			return i + 1

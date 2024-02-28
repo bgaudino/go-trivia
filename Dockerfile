@@ -15,7 +15,7 @@ FROM alpine:latest
 COPY --from=builder /run-app /usr/local/bin/
 COPY --from=builder /get-data /usr/local/bin/
 COPY --from=builder /migrate /usr/local/bin/
-COPY --from=builder /usr/src/app/templates /templates
+COPY --from=builder /usr/src/app/templates /usr/local/bin/templates
 COPY --from=builder /usr/src/app/migrations /usr/local/bin/migrations 
 
 # Set the working directory
