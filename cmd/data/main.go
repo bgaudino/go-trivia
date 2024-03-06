@@ -135,7 +135,7 @@ func main() {
 			}
 			q := models.Question{Text: text, Difficulty: r.Difficulty}
 			q.Choices = getChoices(r)
-			err := q.Save(pool)
+			err := q.Create(pool)
 			if err != nil {
 				fmt.Println(err.Error())
 				continue

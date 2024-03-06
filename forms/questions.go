@@ -115,7 +115,7 @@ func (f *QuestionForm) IsValid() bool {
 }
 
 func (f *QuestionForm) Save() error {
-	return f.Model.Save(nil)
+	return f.Model.Create(nil)
 }
 
 func (f *QuestionForm) Process() {

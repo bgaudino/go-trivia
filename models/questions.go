@@ -51,7 +51,7 @@ type Question struct {
 	Categories []*Category
 }
 
-func (q *Question) Save(conn *pgxpool.Pool) error {
+func (q *Question) Create(conn *pgxpool.Pool) error {
 	if conn == nil {
 		conn = db.Pool
 	}
@@ -87,31 +87,57 @@ func (q *Question) Save(conn *pgxpool.Pool) error {
 		return err
 	}
 
-	for _, c := range q.Categories {
-		_, err = tx.Exec(
-			ctx,
-			"INSERT INTO categorization (question_id, category_id) VALUES ($1, $2)",
-			q.Id, c.Id,
-		)
-		if err != nil {
-			return err
+	var categorizationQuery strings.Builder
+	categorizationQuery.WriteString("INSERT INTO categorization (question_id, category_id) VALUES ")
+	categorizationParams := []any{}
+	paramNum := 1
+	for i, c := range q.Categories {
+		categorizationParams = append(categorizationParams, []any{q.Id, c.Id}...)
+		categorizationQuery.WriteString(fmt.Sprintf("($%v, $%v)", paramNum, paramNum+1))
+		if i < len(q.Categories)-1 {
+			categorizationQuery.WriteByte(',')
 		}
+		paramNum += 2
+	}
+	_, err = tx.Exec(
+		ctx,
+		categorizationQuery.String(),
+		categorizationParams...,
+	)
+	if err != nil {
+		return err
 	}
 
-	for _, c := range q.Choices {
-		err = tx.QueryRow(
-			ctx,
-			"INSERT INTO answers (text, question_id, is_correct) VALUES ($1, $2, $3) RETURNING id",
-			c.Text, q.Id, c.IsCorrect,
-		).Scan(&c.Id)
-		if err != nil {
-			if pgErr, ok := err.(*pgconn.PgError); ok {
-				if pgErr.ConstraintName == "answers_text_question_id_key" {
-					return errors.New("choices must be unique per question")
-				}
-			}
-			return err
+	var answerQuery strings.Builder
+	answerQuery.WriteString("INSERT INTO answers (text, question_id, is_correct) VALUES ")
+	answerParams := []any{}
+	paramNum = 1
+	for i, c := range q.Choices {
+		answerQuery.WriteString(fmt.Sprintf("($%v, $%v, $%v)", paramNum, paramNum+1, paramNum+2))
+		if i < len(q.Choices)-1 {
+			answerQuery.WriteByte(',')
 		}
+		answerParams = append(answerParams, []any{c.Text, q.Id, c.IsCorrect}...)
+		paramNum += 3
+	}
+	answerQuery.WriteString(" RETURNING id")
+	rows, err := tx.Query(
+		ctx,
+		answerQuery.String(),
+		answerParams...,
+	)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.ConstraintName == "answers_text_question_id_key" {
+				return errors.New("choices must be unique per question")
+			}
+		}
+		return err
+	}
+	i := 0
+	for rows.Next() {
+		rows.Scan(&q.Choices[i].Id)
+		i++
 	}
 	return tx.Commit(ctx)
 }
